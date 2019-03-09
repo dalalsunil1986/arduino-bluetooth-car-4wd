@@ -184,38 +184,77 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    String currentInput = "DIAM LURUS";
-
     private void controlRobot(String input){
         Log.e("CONTROL ROBOT"," "+input);
-        if(!currentInput.equals(input)){
-            switch (input){
-                case "MAJU LURUS":
-                    kirimDataKeBluetooth("1");
-                    break;
-                case "MAJU KIRI":
-                    kirimDataKeBluetooth("2");
-                    break;
-                case "MAJU KANAN":
-                    kirimDataKeBluetooth("3");
-                    break;
-                case "MUNDUR LURUS":
-                    kirimDataKeBluetooth("4");
-                    break;
-                case "MUNDUR KIRI":
-                    kirimDataKeBluetooth("5");
-                    break;
-                case "MUNDUR KANAN":
-                    kirimDataKeBluetooth("6");
-                    break;
-                default:
-                    kirimDataKeBluetooth("0");
-                    break;
-            }
-            currentInput = input;
+
+        switch (input){
+            case "PELAN MAJU LURUS":
+                kirimDataKeBluetooth("A");
+                break;
+            case "PELAN MAJU KIRI":
+                kirimDataKeBluetooth("B");
+                break;
+            case "PELAN MAJU KANAN":
+                kirimDataKeBluetooth("C");
+                break;
+            case "PELAN MAJU SERONG_KANAN":
+                kirimDataKeBluetooth("D");
+                break;
+            case "PELAN MAJU SERONG_KIRI":
+                kirimDataKeBluetooth("E");
+                break;
+
+            case "PELAN MUNDUR LURUS":
+                kirimDataKeBluetooth("F");
+                break;
+            case "PELAN MUNDUR KIRI":
+                kirimDataKeBluetooth("G");
+                break;
+            case "PELAN MUNDUR KANAN":
+                kirimDataKeBluetooth("H");
+                break;
+            case "PELAN MUNDUR SERONG_KANAN":
+                kirimDataKeBluetooth("I");
+                break;
+            case "PELAN MUNDUR SERONG_KIRI":
+                kirimDataKeBluetooth("J");
+                break;
+
+            case "LAJU MAJU LURUS":
+                kirimDataKeBluetooth("K");
+                break;
+            case "LAJU MAJU KIRI":
+                kirimDataKeBluetooth("L");
+                break;
+            case "LAJU MAJU KANAN":
+                kirimDataKeBluetooth("M");
+                break;
+            case "LAJU MAJU SERONG_KANAN":
+                kirimDataKeBluetooth("N");
+                break;
+            case "LAJU MAJU SERONG_KIRI":
+                kirimDataKeBluetooth("O");
+                break;
+
+            case "LAJU MUNDUR LURUS":
+                kirimDataKeBluetooth("P");
+                break;
+            case "LAJU MUNDUR KIRI":
+                kirimDataKeBluetooth("Q");
+                break;
+            case "LAJU MUNDUR KANAN":
+                kirimDataKeBluetooth("R");
+                break;
+            case "LAJU MUNDUR SERONG_KANAN":
+                kirimDataKeBluetooth("S");
+                break;
+            case "LAJU MUNDUR SERONG_KIRI":
+                kirimDataKeBluetooth("T");
+                break;
+            default:
+                kirimDataKeBluetooth("0");
+                break;
         }
-
-
     }
 
 //    private void controlRobot(float[] inputs){
@@ -276,6 +315,12 @@ public class MainActivity extends AppCompatActivity {
 
                     String eventString = "";
 
+                    if(Math.abs(inputs[2]) > 4){
+                        eventString += "LAJU ";
+                    }else{
+                        eventString += "PELAN ";
+                    }
+
                     if(inputs[2] < 2.0f && inputs[2] > -2.0f){
                         getWindow().getDecorView().setBackgroundColor(Color.RED);
                         eventString += "DIAM";
@@ -289,18 +334,22 @@ public class MainActivity extends AppCompatActivity {
 
                     if(inputs[0] < 2 && inputs[0] > -2.0f){
                         eventString += " LURUS";
-                    }else if(inputs[0] > 2.0f){
+                    }else if(inputs[0] > 2.0f && inputs[0] < 5.0f){
+                        eventString += " SERONG_KIRI";
+                    }else if(inputs[0] < -2.0f && inputs[0] > -5.0f){
+                        eventString += " SERONG_KANAN";
+                    }else if(inputs[0] > 5.0f){
                         eventString += " KIRI";
-                    }else{
+                    }else if(inputs[0] < -5.0f){
                         eventString += " KANAN";
                     }
+
 
                     control.setText(eventString);
 
                     String textSensors = "X : "+round(inputs[0],2)+", Y : "+round(inputs[2],2);
                     sensors.setText(textSensors);
 
-//                    controlRobot(inputs);
                     controlRobot(eventString);
                 }
 
