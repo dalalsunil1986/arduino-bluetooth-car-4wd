@@ -5,44 +5,88 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/status"
-        android:textAlignment="center"
-        android:textSize="18sp"
-        android:text="BELUM TERHUBUNG"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <TextView
-        android:id="@+id/control"
-        android:textAlignment="center"
-        android:textSize="30sp"
-        android:text="CONTROL"
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <TextView
-        android:id="@+id/sensors"
-        android:textAlignment="center"
-        android:textSize="18sp"
-        android:text="CONTROL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/control"/>
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <Button
-        android:text="Connect"
-        android:layout_margin="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/connect"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+            <ImageView
+                android:id="@+id/img_control"
+                android:src="@drawable/diam"
+                android:layout_width="match_parent"
+                android:layout_height="250dp" />
+
+            <ImageView
+                android:id="@+id/connect"
+                android:src="@drawable/bluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                app:layout_constraintTop_toTopOf="@id/img_control"
+                app:layout_constraintLeft_toLeftOf="@id/img_control"
+                app:layout_constraintRight_toRightOf="@id/img_control"
+                app:layout_constraintBottom_toBottomOf="@id/img_control"/>
+
+            <TextView
+                android:id="@+id/status"
+                android:text="BELUM TERHUBUNG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="18dp"
+                app:layout_constraintLeft_toLeftOf="@id/connect"
+                app:layout_constraintRight_toRightOf="@id/connect"
+                app:layout_constraintBottom_toBottomOf="@id/connect"/>
+
+        </android.support.constraint.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/control"
+            android:text="MAJU LURUS"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/sensors"
+            android:text="X: 0.7, Y: 0.5"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp"
+            android:textColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Switch
+            android:id="@+id/btn_switch"
+            android:textOn="ON"
+            android:textOff="OFF"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:text="OFF / ON"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

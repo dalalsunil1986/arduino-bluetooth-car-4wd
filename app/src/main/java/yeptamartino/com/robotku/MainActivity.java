@@ -1,10 +1,5 @@
 package yeptamartino.com.robotku;
 
-
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -14,287 +9,173 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.Set;
-import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Boolean power = false;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometerSensor;
     private SensorEventListener mAccelerometerSensorEventListener;
 
     //Bluetooth
-    private final String DEVICE_ADDRESS = "00:18:E4:40:00:06"; //MAC Address of Bluetooth Module
-    private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+    BluetoothHandler mBluetoothHandler;
 
-    private BluetoothDevice device;
-    private BluetoothSocket socket;
-    private OutputStream outputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         menyetingSensor();
         menyetingBluetooth();
-
-
     }
 
     private void setStatus(String text){
-
         TextView status = findViewById(R.id.status);
-
         status.setText(text);
-
     }
 
     private void menyetingBluetooth() {
 
-        Button connect = findViewById(R.id.connect);
+        mBluetoothHandler = new BluetoothHandler(this);
+
+        ImageView connect = findViewById(R.id.connect);
+        Switch btnSwitch = findViewById(R.id.btn_switch);
 
         connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Toast.makeText(getApplicationContext(), "Initiating bluetooth.", Toast.LENGTH_SHORT).show();
-
-                if(BTinit())
-                {
-                    Toast.makeText(getApplicationContext(), "Init bluetooth succesful.", Toast.LENGTH_SHORT).show();
-                    BTconnect();
-                }else{
-                    Toast.makeText(getApplicationContext(), "Init bluetooth failed.", Toast.LENGTH_SHORT).show();
-                }
+                mBluetoothHandler.onClick();
             }
         });
 
+        btnSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                power = isChecked;
+            }
+        });
     }
 
-    public boolean BTinit()
-    {
-        boolean found = false;
 
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private void controlRobot(String input) {
+        Log.e("CONTROL ROBOT", " " + input);
 
-        if(bluetoothAdapter == null) //Checks if the device supports bluetooth
-        {
-            Toast.makeText(getApplicationContext(), "Device doesn't support bluetooth", Toast.LENGTH_SHORT).show();
-        }
-
-        if(!bluetoothAdapter.isEnabled()) //Checks if bluetooth is enabled. If not, the program will ask permission from the user to enable it
-        {
-            Intent enableAdapter = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableAdapter,0);
-
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch(InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
-
-        if(bondedDevices.isEmpty()) //Checks for paired bluetooth devices
-        {
-            Toast.makeText(getApplicationContext(), "Please pair the device first", Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
-            for(BluetoothDevice iterator : bondedDevices)
-            {
-                if(iterator.getAddress().equals(DEVICE_ADDRESS))
-                {
-                    device = iterator;
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        return found;
-    }
-
-    public boolean BTconnect()
-    {
-        boolean connected = true;
-
-        try
-        {
-            socket = device.createRfcommSocketToServiceRecord(PORT_UUID); //Creates a socket to handle the outgoing connection
-            socket.connect();
-
-            Toast.makeText(getApplicationContext(),
-                    "Connection to bluetooth device successful", Toast.LENGTH_LONG).show();
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-            connected = false;
-        }
-
-        if(connected)
-        {
-            try
-            {
-                outputStream = socket.getOutputStream(); //gets the output stream of the socket
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        return connected;
-    }
-
-    //SENSORS
-    private void kirimDataKeBluetooth(String input){
-       if(outputStream != null){
-           setStatus("SUDAH TERHUBUNG");
-
-           try
-           {
-               Log.e("INPUT"," "+input);
-               outputStream.write(input.getBytes());
-           }
-           catch (IOException e)
-           {
-               e.printStackTrace();
-           }
-
-       }else{
-           setStatus("BELUM TERHUBUNG");
-       }
-
-    }
-
-    private void controlRobot(String input){
-        Log.e("CONTROL ROBOT"," "+input);
-
-        switch (input){
+        switch (input) {
             case "PELAN MAJU LURUS":
-                kirimDataKeBluetooth("A");
+                mBluetoothHandler.kirimDataKeBluetooth("A");
                 break;
             case "PELAN MAJU KIRI":
-                kirimDataKeBluetooth("B");
+                mBluetoothHandler.kirimDataKeBluetooth("B");
                 break;
             case "PELAN MAJU KANAN":
-                kirimDataKeBluetooth("C");
+                mBluetoothHandler.kirimDataKeBluetooth("C");
                 break;
-            case "PELAN MAJU SERONG_KANAN":
-                kirimDataKeBluetooth("D");
+            case "PELAN MAJU SERONG KANAN":
+                mBluetoothHandler.kirimDataKeBluetooth("D");
                 break;
-            case "PELAN MAJU SERONG_KIRI":
-                kirimDataKeBluetooth("E");
+            case "PELAN MAJU SERONG KIRI":
+                mBluetoothHandler.kirimDataKeBluetooth("E");
                 break;
 
             case "PELAN MUNDUR LURUS":
-                kirimDataKeBluetooth("F");
+                mBluetoothHandler.kirimDataKeBluetooth("F");
                 break;
             case "PELAN MUNDUR KIRI":
-                kirimDataKeBluetooth("G");
+                mBluetoothHandler.kirimDataKeBluetooth("G");
                 break;
             case "PELAN MUNDUR KANAN":
-                kirimDataKeBluetooth("H");
+                mBluetoothHandler.kirimDataKeBluetooth("H");
                 break;
-            case "PELAN MUNDUR SERONG_KANAN":
-                kirimDataKeBluetooth("I");
+            case "PELAN MUNDUR SERONG KANAN":
+                mBluetoothHandler.kirimDataKeBluetooth("I");
                 break;
-            case "PELAN MUNDUR SERONG_KIRI":
-                kirimDataKeBluetooth("J");
+            case "PELAN MUNDUR SERONG KIRI":
+                mBluetoothHandler.kirimDataKeBluetooth("J");
                 break;
 
             case "LAJU MAJU LURUS":
-                kirimDataKeBluetooth("K");
+                mBluetoothHandler.kirimDataKeBluetooth("K");
                 break;
             case "LAJU MAJU KIRI":
-                kirimDataKeBluetooth("L");
+                mBluetoothHandler.kirimDataKeBluetooth("L");
                 break;
             case "LAJU MAJU KANAN":
-                kirimDataKeBluetooth("M");
+                mBluetoothHandler.kirimDataKeBluetooth("M");
                 break;
-            case "LAJU MAJU SERONG_KANAN":
-                kirimDataKeBluetooth("N");
+            case "LAJU MAJU SERONG KANAN":
+                mBluetoothHandler.kirimDataKeBluetooth("N");
                 break;
-            case "LAJU MAJU SERONG_KIRI":
-                kirimDataKeBluetooth("O");
+            case "LAJU MAJU SERONG KIRI":
+                mBluetoothHandler.kirimDataKeBluetooth("O");
                 break;
 
             case "LAJU MUNDUR LURUS":
-                kirimDataKeBluetooth("P");
+                mBluetoothHandler.kirimDataKeBluetooth("P");
                 break;
             case "LAJU MUNDUR KIRI":
-                kirimDataKeBluetooth("Q");
+                mBluetoothHandler.kirimDataKeBluetooth("Q");
                 break;
             case "LAJU MUNDUR KANAN":
-                kirimDataKeBluetooth("R");
+                mBluetoothHandler.kirimDataKeBluetooth("R");
                 break;
-            case "LAJU MUNDUR SERONG_KANAN":
-                kirimDataKeBluetooth("S");
+            case "LAJU MUNDUR SERONG KANAN":
+                mBluetoothHandler.kirimDataKeBluetooth("S");
                 break;
-            case "LAJU MUNDUR SERONG_KIRI":
-                kirimDataKeBluetooth("T");
+            case "LAJU MUNDUR SERONG KIRI":
+                mBluetoothHandler.kirimDataKeBluetooth("T");
                 break;
             default:
-                kirimDataKeBluetooth("0");
+                mBluetoothHandler.kirimDataKeBluetooth("0");
+                break;
+        }
+
+        setGambar(input);
+        setStatus(mBluetoothHandler.getStatus());
+    }
+
+    private void setGambar(String input){
+        ImageView imgControl = findViewById(R.id.img_control);
+
+        String tmpInput = input.replace("PELAN ", "");
+        tmpInput = tmpInput.replace("LAJU ", "");
+
+        switch (tmpInput){
+            case "MAJU LURUS":
+                imgControl.setImageResource(R.drawable.majulurus);
+                break;
+            case "MAJU KIRI":
+                imgControl.setImageResource(R.drawable.belokkiri);
+                break;
+            case "MAJU KANAN":
+                imgControl.setImageResource(R.drawable.belokkanan);
+                break;
+            case "MAJU SERONG KANAN":
+                imgControl.setImageResource(R.drawable.majuserongkanan);
+                break;
+            case "MAJU SERONG KIRI":
+                imgControl.setImageResource(R.drawable.majuserongkiri);
+                break;
+            case "MUNDUR LURUS":
+                imgControl.setImageResource(R.drawable.mundurlurus);
+                break;
+            case "MUNDUR SERONG KANAN":
+                imgControl.setImageResource(R.drawable.mundurserongkanan);
+                break;
+            case "MUNDUR SERONG KIRI":
+                imgControl.setImageResource(R.drawable.mundurserongkiri);
+                break;
+            default:
+                imgControl.setImageResource(R.drawable.diam);
                 break;
         }
     }
-
-//    private void controlRobot(float[] inputs){
-//
-//        int x = (int)Math.floor(Math.abs(inputs[0]));
-//        int y = (int)Math.floor(Math.abs(inputs[2]));
-//
-//        if(inputs[0] < 0){
-//          x = x*-1;
-//        }
-//
-//        if(inputs[2] < 0){
-//            y = y*-1;
-//        }
-//
-//        if(x > 10){
-//            x = 10;
-//        }
-//
-//        if(y > 10){
-//            y = 10;
-//        }
-//
-//        if(x < -10){
-//            x = -10;
-//        }
-//
-//        if(y < -10){
-//            y = -10;
-//        }
-//
-//        String input = x+","+y+";";
-//
-//        Log.e("MENGIRIM",input);
-//
-//        kirimDataKeBluetooth(input);
-//
-//    }
-
-    //SENSOR
 
     private void menyetingSensor(){
 
@@ -335,22 +216,29 @@ public class MainActivity extends AppCompatActivity {
                     if(inputs[0] < 2 && inputs[0] > -2.0f){
                         eventString += " LURUS";
                     }else if(inputs[0] > 2.0f && inputs[0] < 5.0f){
-                        eventString += " SERONG_KIRI";
+                        eventString += " SERONG KIRI";
                     }else if(inputs[0] < -2.0f && inputs[0] > -5.0f){
-                        eventString += " SERONG_KANAN";
+                        eventString += " SERONG KANAN";
                     }else if(inputs[0] > 5.0f){
                         eventString += " KIRI";
                     }else if(inputs[0] < -5.0f){
                         eventString += " KANAN";
                     }
 
-
-                    control.setText(eventString);
+                    if(eventString.contains("DIAM") || !power){
+                        control.setText("DIAM");
+                    }else{
+                        control.setText(eventString);
+                    }
 
                     String textSensors = "X : "+round(inputs[0],2)+", Y : "+round(inputs[2],2);
                     sensors.setText(textSensors);
 
-                    controlRobot(eventString);
+                    if(power){
+                        controlRobot(eventString);
+                    }else{
+                        controlRobot("DIAM");
+                    }
                 }
 
             }
